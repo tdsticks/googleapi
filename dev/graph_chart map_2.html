@@ -1,0 +1,375 @@
+<html>
+ 	<head>
+
+		<title>SMS</title>
+
+	    <style type="text/css">
+	      .header {
+	        color: green;
+	        background-color: #ccc;
+	        font-size: 40px;
+	        text-align: center;
+	      }
+	    </style>
+
+	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+	    <script src="js/lib/geocomplete/jquery.geocomplete.js"></script>
+
+	    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
+	    <!-- Note that you need to replace the key ABCDEF with your Maps API key. -->
+	    <!-- Sign up for a Maps API key here: http://code.google.com/apis/maps/signup.html -->
+	    <!--<script src="http://maps.google.com/maps?file=api&v=2&api;key= ENTER YOU API KEY HERE " type="text/javascript"></script>-->
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key= ENTER YOU API KEY HERE &sensor=true"></script>
+
+	    <script type="text/javascript">
+
+	    google.load('visualization', '1',
+	          {'packages': ['table', 'map', 'corechart']});
+
+	    google.setOnLoadCallback(initialize);
+
+	    var geocoder;
+	    var map;
+
+	    var data 							= new Array();
+
+	    //var callbacks 						= $.Callbacks();
+	   	//console.log( callbacks );
+
+	    //var loc 							= new Array();
+
+	    function initialize()
+	    {
+	    	console.log("::initialize::");
+
+	    	geocoder 						= new google.maps.Geocoder();
+	    	//console.log(geocoder);
+
+	        // The URL here is the URL of the spreadsheet.
+	        // This is where the data is.
+	        /*var query = new google.visualization.Query(
+	            'https://spreadsheets.google.com/pub?key=pCQbetd-CptF0r8qmCOlZGg'
+	        );
+	        query.send(draw);*/
+
+	        // Google Doc
+	        // https://docs.google.com/spreadsheet/ccc?key=0AtCDgg051uxedENuUVJZdVZlX2V6dFVlY1poREthb3c#gid=0
+
+			// Google Spread Sheet JSON
+			// http://spreadsheets.google.com/tq?key=0AtCDgg051uxedENuUVJZdVZlX2V6dFVlY1poREthb3c
+
+			// To see the data that this visualization uses, browse to
+			// http://spreadsheets.google.com/ccc?key=pCQbetd-CptGXxxQIG7VFIQ
+			var query 						= new google.visualization.Query(
+				'http://spreadsheets.google.com/tq?key=0AtCDgg051uxedENuUVJZdVZlX2V6dFVlY1poREthb3c'
+			);
+			//console.log(query);			
+
+			query.send(draw);
+	    }
+
+
+	    
+
+		function codeAddress (address) 
+		{	
+			console.log("::codeAddress::");
+
+			//callbacks.add( geocodeListener );
+
+			geocoder.geocode( { 'address': address}, geocoderResults );
+			//geocoder.geocode( { 'address': address}, geocoderResults );
+
+			//console.log(lng, lat);
+
+			//return this.loc;			
+			
+			//callbacks.remove( geocodeListener );
+			
+			//$.Topic('getGeocode').subscribe( geocoderResults );
+		}
+
+
+		function geocoderResults (results, status)
+		{
+			console.log("::geocoderResults::");
+
+			var loc;// 						= new Array();
+
+			//if (status == "OK") {
+				//lng 						= results[0].geometry.location.lng();
+				//lat 						= results[0].geometry.location.lat();
+				//loc 						= [lng, lat];
+				//callbacks.fire( loc );
+				//$.Topic('getGeocode').publish( loc );
+				//console.log( topics );
+				//console.log(loc);
+			//}
+
+			if (status == google.maps.GeocoderStatus.OK) {
+
+				console.log( "google.maps.GeocoderStatus.OK" );
+
+				lng 						= results[0].geometry.location.lng();
+				lat 						= results[0].geometry.location.lat();
+				loc 						= [lng, lat];
+
+				console.log(loc);
+
+				/*map.setCenter(results[0].geometry.location);
+
+				var marker = new google.maps.Marker({
+					map: map,
+					position: results[0].geometry.location
+				});*/
+
+			} else {
+				alert("Geocode was not successful for the following reason: " + status);
+			}
+
+			//console.log(results, status);
+
+			//return loc
+		}
+
+
+		/*
+		function geocodeListener (msg) 
+		{
+			console.log( msg );
+			return msg;
+		}
+		*/
+
+
+		/*
+		var topics = {};
+		 
+		jQuery.Topic = function( id ) {
+		    var callbacks,
+		        method,
+		        topic = id && topics[ id ];
+		 
+		    if ( !topic ) {
+		        callbacks = jQuery.Callbacks();
+		        topic = {
+		            publish: callbacks.fire,
+		            subscribe: callbacks.add,
+		            unsubscribe: callbacks.remove
+		        };
+		        if ( id ) {
+		            topics[ id ] = topic;
+		        }
+		    }
+		    return topic;
+		};
+		*/
+
+
+		/*
+		$(function(){
+			$("#geocomplete").geocomplete()
+				.bind("geocode:result", function(event, result){
+					$.log("Result: " + result.formatted_address);
+				}
+			)
+				.bind("geocode:error", function(event, status){
+					$.log("ERROR: " + status);
+				}
+			)
+				.bind("geocode:multiple", function(event, results){
+					$.log("Multiple: " + results.length + " results found");
+				}
+			);
+
+			$("#find").click(function() {
+				$("#geocomplete").trigger("geocode");
+			});
+
+
+			$("#examples a").click(function() {
+					$("#geocomplete").val($(this).text()).trigger("geocode");
+					return false;
+				}
+			);
+		});
+		*/
+
+
+	    function draw(response)
+	    {
+	        if (response.isError()) {
+	        	alert('Error in query');
+	        }
+
+			// Gather data from Sheet cells and rows
+	       	var sheetData 						= response.getDataTable();
+	        //console.log(sheetData);
+
+	        var getNumberOfColumns 				= sheetData.getNumberOfColumns();
+	        //console.log( getNumberOfColumns );
+
+	        var getNumberOfRows 				= sheetData.getNumberOfRows();
+	        //console.log( getNumberOfRows );
+
+	        var getColumnNames 					= new Array();
+	        //var getRowItemNames 				= new Array();
+
+	        // 
+	        for (c=0; c<getNumberOfColumns; c++)
+	        {
+	        	
+	        	columnName 						= sheetData.getColumnLabel(c);
+	        	//console.log(columnName)
+	        	
+	        	//getColumnNames[c] 				= [ sheetData.getColumnType(c), columnName ];
+	        	//data[c] 						= [ sheetData.getColumnType(c), columnName ];
+	        	
+	        	data[columnName] 				= sheetData.getColumnType(c);
+
+	        	var rowAry 						= new Array();
+	        	for (r=0; r<getNumberOfRows; r++)
+	        	{
+	        		
+	        		rowName 					= sheetData.getValue(r, c);
+	        		//console.log(rowName);
+	        		rowAry[r] 					= rowName;
+
+	        		if (columnName == "Location")
+	        		{
+	        			//codeAddress(rowName);
+	        			//console.log(rowName);
+	        		}
+
+	        		
+	        		
+	        	}
+	        	//console.log(rowAry);
+	        	//getRowItemNames[c]				= rowAry;
+	        	
+	        	//data[c] 						= [ getColumnNames[c], rowAry ];
+	        	
+	        }
+
+	        console.log(data);
+
+	        //console.log( getColumnNames );
+	        //console.log( getRowItemNames );
+	        
+
+
+	        /*
+	     	// Create Table from Sheet Data
+	        var tableData = new google.visualization.DataTable();
+
+	        for (colID in getColumnNames) 
+	        {
+	       		var head 						= getColumnNames[colID];
+	       		tableData.addColumn( head[0], head[1] );
+	        }
+
+	        tableData.addRows(getNumberOfRows);
+
+	        for (colID in getRowItemNames) 
+	        {
+	       		rowData 						= getRowItemNames[colID]; 
+	       		//console.log(rowData);
+
+	       		colNum 							= parseInt(colID);
+	       	
+	       		for (rowID in rowData) 
+	       		{
+	       			rowName 					= rowData[rowID];
+	       			//console.log(rowName);
+
+	       			rowNum 						= parseInt(rowID);
+	       			tableData.setCell(rowNum, colNum, rowName);
+	       		}
+	        }
+
+	        var table = new google.visualization.Table(document.getElementById('table_div'));
+	        table.draw(tableData, {showRowNumber: false});
+
+			*/
+	        
+
+
+	        //map = new google.visualization.Map(document.getElementById('map_div'));
+			//console.log(map);
+	        //map.draw(tableData, {showTip: true});
+	        
+
+	        //console.log(loc);
+	        //
+			//map.draw(tableData, {showTip: true});
+
+
+
+
+			//loc = codeAddress('farmington hills, mi');
+			//console.log(loc);
+
+
+	        // Set a 'select' event listener for the table.
+	        // When the table is selected,
+	        // we set the selection on the map.
+	        /*google.visualization.events.addListener(table, 'select',
+	            function() {
+	              map.setSelection(table.getSelection());
+	            }
+	        );*/
+
+	        // Set a 'select' event listener for the map.
+	        // When the map is selected,
+	        // we set the selection on the table.
+	        /*google.visualization.events.addListener(map, 'select',
+	            function() {
+	              table.setSelection(map.getSelection());
+	            }
+	        );*/
+
+	        //var ticketsData = response.getDataTable();
+	        //console.log(ticketsData);
+
+	        /*var chart = new google.visualization.ColumnChart(
+	            document.getElementById('chart_div')
+	        );
+
+	        chart.draw(
+	        	ticketsData, {
+		        	'isStacked': true,
+		        	'legend': 'bottom',
+		            'vAxis': {'title': 'Number of tickets'}
+	        	}
+	        );*/
+
+	      }
+
+
+		</script>
+	</head>
+
+	<body>
+		<div class="header">SMS</div>
+
+		<table align="center">
+			<tr valign="top">
+				<td style="width: 50%;">
+					<div id="map_div" style="width: 400px; height: 300;"></div>
+				</td>
+				<td style="width: 50%;">
+					<div id="table_div"></div>
+				</td>
+			</tr>
+			<tr>
+				<td colSpan=2>
+					<div id="chart_div" style="align: center; width: 700px; height: 300px;"></div>
+				</td>
+			</tr>
+		</table>
+
+	</body>
+
+</html>

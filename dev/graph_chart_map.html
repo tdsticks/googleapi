@@ -1,0 +1,117 @@
+<html>
+  <head>
+    <title>
+      Cinematics
+    </title>
+    <style type="text/css">
+      .header {
+        color: purple;
+        background-color: #abc;
+        font-size: 40px;
+        text-align: center;
+      }
+    </style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
+    <!-- Note that you need to replace the key ABCDEF with your Maps API key. -->
+    <!-- Sign up for a Maps API key here: http://code.google.com/apis/maps/signup.html -->
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key= ENTER YOUR API KEY HERE &sensor=true"></script>
+
+    <script type="text/javascript">
+
+      google.load('visualization', '1',
+          {'packages': ['table', 'map', 'corechart']});
+
+      google.setOnLoadCallback(initialize);
+
+      function initialize() {
+        // The URL here is the URL of the spreadsheet.
+        // This is where the data is.
+        var query = new google.visualization.Query(
+            'https://spreadsheets.google.com/pub?key=pCQbetd-CptF0r8qmCOlZGg');
+        query.send(draw);
+      }
+
+      function draw(response) {
+        if (response.isError()) {
+          alert('Error in query');
+        }
+
+        var ticketsData = response.getDataTable();
+
+        var chart = new google.visualization.ColumnChart(
+            document.getElementById('chart_div'));
+
+        chart.draw(ticketsData, {'isStacked': true, 'legend': 'bottom',
+            'vAxis': {'title': 'Number of tickets'}});
+
+        var geoData = new google.visualization.DataTable();
+
+        geoData.addColumn('string', 'City');
+        geoData.addColumn('string', 'Name');
+        geoData.addColumn('boolean', 'Food');
+        geoData.addRows(3);
+        geoData.setCell(0, 0, 'London');
+        geoData.setCell(1, 0, 'Paris');
+        geoData.setCell(2, 0, 'Moscow');
+        geoData.setCell(0, 1, 'Cinematics London');
+        geoData.setCell(1, 1, 'Cinematics Paris');
+        geoData.setCell(2, 1, 'Cinematics Moscow');
+        geoData.setCell(0, 2, true);
+        geoData.setCell(1, 2, true);
+        geoData.setCell(2, 2, false);
+
+        var geoView = new google.visualization.DataView(geoData);
+        geoView.setColumns([0, 1]);
+
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(geoData, {showRowNumber: false});
+
+        var map = new google.visualization.Map(document.getElementById('map_div'));
+        map.draw(geoView, {showTip: true});
+
+        // Set a 'select' event listener for the table.
+        // When the table is selected,
+        // we set the selection on the map.
+        google.visualization.events.addListener(table, 'select',
+            function() {
+              map.setSelection(table.getSelection());
+            }
+        );
+
+        // Set a 'select' event listener for the map.
+        // When the map is selected,
+        // we set the selection on the table.
+        google.visualization.events.addListener(map, 'select',
+            function() {
+              table.setSelection(map.getSelection());
+            }
+        );
+
+      }
+
+    </script>
+  </head>
+
+  <body>
+    <div class="header">Cinematics</div>
+
+    <table align="center">
+      <tr valign="top">
+        <td style="width: 50%;">
+          <div id="map_div" style="width: 400px; height: 300;"></div>
+        </td>
+        <td style="width: 50%;">
+          <div id="table_div"></div>
+        </td>
+      </tr>
+      <tr>
+        <td colSpan=2>
+          <div id="chart_div" style="align: center; width: 700px; height: 300px;"></div>
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>
